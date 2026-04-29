@@ -81,30 +81,52 @@
     </div>
 
     <main class="board" id="board">
+
         <section class="section" data-status="pendiente">
-            <div class="section-head pendiente">
-                <span class="marker"></span>
-                <h2>Pendientes</h2>
-                <span class="meta"><span class="num" id="countPendiente">0</span> alumnos</span>
+            <div class="section-head pendiente" onclick="this.parentElement.classList.toggle('is-collapsed')">
+                <div class="head-left">
+                    <span class="marker"></span>
+                    <h2>Pendientes</h2>
+                    <span class="meta"><span class="num" id="countPendiente">0</span> alumnos</span>
+                </div>
+                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
             </div>
             <div class="section-body" id="bodyPendiente"></div>
         </section>
+
         <section class="section" data-status="desarrollo">
-            <div class="section-head desarrollo">
-                <span class="marker"></span>
-                <h2>En desarrollo</h2>
-                <span class="meta"><span class="num" id="countDesarrollo">0</span> alumnos</span>
+            <div class="section-head desarrollo" onclick="this.parentElement.classList.toggle('is-collapsed')">
+                <div class="head-left">
+                    <span class="marker"></span>
+                    <h2>En desarrollo</h2>
+                    <span class="meta"><span class="num" id="countDesarrollo">0</span> alumnos</span>
+                </div>
+                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
             </div>
             <div class="section-body" id="bodyDesarrollo"></div>
         </section>
+
         <section class="section" data-status="realizado">
-            <div class="section-head realizado">
-                <span class="marker"></span>
-                <h2>Realizados</h2>
-                <span class="meta"><span class="num" id="countRealizado">0</span> alumnos</span>
+            <div class="section-head realizado" onclick="this.parentElement.classList.toggle('is-collapsed')">
+                <div class="head-left">
+                    <span class="marker"></span>
+                    <h2>Realizados</h2>
+                    <span class="meta"><span class="num" id="countRealizado">0</span> alumnos</span>
+                </div>
+                <svg class="collapse-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
             </div>
             <div class="section-body" id="bodyRealizado"></div>
         </section>
+
     </main>
 
     <!-- Modal: Student -->
@@ -122,6 +144,25 @@
                 <div class="field">
                     <label>Nombre del alumno</label>
                     <input type="text" id="fStudentName" placeholder="Ej: G-DAVID">
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Usuario</label>
+                        <input type="text" id="fStudentUser" placeholder="Usuario de acceso">
+                    </div>
+                    <div class="field">
+                        <label>Contraseña</label>
+                        <input type="text" id="fStudentPass" placeholder="Clave">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Cuotas pagadas</label>
+                    <input type="number" id="fStudentCuotas" placeholder="0" min="0" style="width: 100px;">
+                </div>
+                <div class="field" style="flex: 2;">
+                    <label>Notas</label>
+                    <input type="text" id="fStudentNotas" placeholder="Comentarios, recordatorios...">
                 </div>
                 <div class="field-row">
                     <div class="field">

@@ -168,114 +168,114 @@ function progressOf(s) {
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])) }
 
 // ============ RENDER ============
-function render(opts={}){
-  const {animate=false} = opts;
-  document.getElementById('todayText').textContent = fmtToday();
-  renderFilters();
+function render(opts = {}) {
+    const { animate = false } = opts;
+    document.getElementById('todayText').textContent = fmtToday();
+    renderFilters();
 
-  let oldRects = null;
-  if(animate){
-    oldRects = {};
-    document.querySelectorAll('.card[data-student-id]').forEach(el=>{
-      oldRects[el.dataset.studentId] = el.getBoundingClientRect();
-    });
-  }
-
-  // Calcula el día exacto en Perú (0=Dom, 1=Lun, ..., 6=Sab)
-  const todayPeru = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Lima"})).getDay();
-
-  const buckets = {pendiente:[], desarrollo:[], realizado:[]};
-  for(const u of state.universities){
-    if(currentUniFilter !== 'all' && currentUniFilter !== u.id) continue;
-    for(const c of u.courses){
-      if(currentCourseFilter !== 'all' && currentCourseFilter !== c.id) continue;
-      for(const s of c.students){
-        
-        // Filtro de búsqueda por texto
-        if(searchTerm && !s.name.toLowerCase().includes(searchTerm.toLowerCase())) continue;
-        
-        // --- FILTRO POR DÍA (A prueba de fallos en la carga inicial) ---
-        const dayFilterEl = document.getElementById('dayFilter');
-        const selectValue = dayFilterEl ? dayFilterEl.value : 'all'; // Lee directo del HTML
-
-        if (selectValue !== 'all') {
-          let targetDay;
-          if (selectValue === 'today') {
-            targetDay = todayPeru; // Usa el día actual en Perú
-          } else {
-            targetDay = parseInt(selectValue); // Usa el número del día (0-6)
-          }
-
-          const hasClassDay = Array.isArray(s.classDays)
-            ? s.classDays.some(cd => cd.day === targetDay)
-            : (s.classDay === targetDay);
-            
-          if (!hasClassDay) continue; // Si no tiene clase ese día, lo saltamos
-        }
-        // ---------------------------------------------------------------
-
-        const st = getStudentSection(s);
-        buckets[st].push({student:s, course:c, university:u, status:st});
-      }
-    }
-  }
-
-  const cmpName = (a,b)=>a.student.name.localeCompare(b.student.name);
-  const firstDay = (s)=> Array.isArray(s.classDays) && s.classDays.length>0
-    ? s.classDays[0].day
-    : (typeof s.classDay === 'number' ? s.classDay : 0);
-  const cmpHier = (a,b)=>{
-    if(a.university.name !== b.university.name) return a.university.name.localeCompare(b.university.name);
-    if(a.course.name !== b.course.name) return a.course.name.localeCompare(b.course.name);
-    return firstDay(a.student) - firstDay(b.student);
-  };
-  
-  // Ordenar primero tarjetas manuales (por manualOrder) y luego el resto
-  const sortBucket = (items, defaultCmp)=>{
-    const manual = items.filter(it => typeof it.student.manualOrder === 'number');
-    const auto = items.filter(it => typeof it.student.manualOrder !== 'number');
-    manual.sort((a,b)=> a.student.manualOrder - b.student.manualOrder);
-    auto.sort(defaultCmp);
-    return [...manual, ...auto];
-  };
-  
-  buckets.pendiente = sortBucket(buckets.pendiente, cmpHier);
-  buckets.desarrollo = sortBucket(buckets.desarrollo, cmpName);
-  buckets.realizado = sortBucket(buckets.realizado, cmpName);
-
-  renderSection('bodyPendiente', buckets.pendiente, 'pendiente');
-  renderSection('bodyDesarrollo', buckets.desarrollo, 'desarrollo');
-  renderSection('bodyRealizado', buckets.realizado, 'realizado');
-
-  document.getElementById('countPendiente').textContent = buckets.pendiente.length;
-  document.getElementById('countDesarrollo').textContent = buckets.desarrollo.length;
-  document.getElementById('countRealizado').textContent = buckets.realizado.length;
-
-  if(animate && oldRects){
-    document.querySelectorAll('.card[data-student-id]').forEach(el=>{
-      const id = el.dataset.studentId;
-      const oldRect = oldRects[id];
-      if(!oldRect) return;
-      const newRect = el.getBoundingClientRect();
-      const dx = oldRect.left - newRect.left;
-      const dy = oldRect.top - newRect.top;
-      if(dx === 0 && dy === 0) return;
-      el.style.transition = 'none';
-      el.style.transform = `translate(${dx}px, ${dy}px)`;
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>{
-          el.style.transition = 'transform 0.6s cubic-bezier(0.22,0.61,0.36,1)';
-          el.style.transform = '';
+    let oldRects = null;
+    if (animate) {
+        oldRects = {};
+        document.querySelectorAll('.card[data-student-id]').forEach(el => {
+            oldRects[el.dataset.studentId] = el.getBoundingClientRect();
         });
-      });
-      setTimeout(()=>{
-        el.style.transition = '';
-        el.style.transform = '';
-      }, 700);
-    });
-  }
+    }
 
-  setupSortable();
+    // Calcula el día exacto en Perú (0=Dom, 1=Lun, ..., 6=Sab)
+    const todayPeru = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Lima" })).getDay();
+
+    const buckets = { pendiente: [], desarrollo: [], realizado: [] };
+    for (const u of state.universities) {
+        if (currentUniFilter !== 'all' && currentUniFilter !== u.id) continue;
+        for (const c of u.courses) {
+            if (currentCourseFilter !== 'all' && currentCourseFilter !== c.id) continue;
+            for (const s of c.students) {
+
+                // Filtro de búsqueda por texto
+                if (searchTerm && !s.name.toLowerCase().includes(searchTerm.toLowerCase())) continue;
+
+                // --- FILTRO POR DÍA (A prueba de fallos en la carga inicial) ---
+                const dayFilterEl = document.getElementById('dayFilter');
+                const selectValue = dayFilterEl ? dayFilterEl.value : 'all'; // Lee directo del HTML
+
+                if (selectValue !== 'all') {
+                    let targetDay;
+                    if (selectValue === 'today') {
+                        targetDay = todayPeru; // Usa el día actual en Perú
+                    } else {
+                        targetDay = parseInt(selectValue); // Usa el número del día (0-6)
+                    }
+
+                    const hasClassDay = Array.isArray(s.classDays)
+                        ? s.classDays.some(cd => cd.day === targetDay)
+                        : (s.classDay === targetDay);
+
+                    if (!hasClassDay) continue; // Si no tiene clase ese día, lo saltamos
+                }
+                // ---------------------------------------------------------------
+
+                const st = getStudentSection(s);
+                buckets[st].push({ student: s, course: c, university: u, status: st });
+            }
+        }
+    }
+
+    const cmpName = (a, b) => a.student.name.localeCompare(b.student.name);
+    const firstDay = (s) => Array.isArray(s.classDays) && s.classDays.length > 0
+        ? s.classDays[0].day
+        : (typeof s.classDay === 'number' ? s.classDay : 0);
+    const cmpHier = (a, b) => {
+        if (a.university.name !== b.university.name) return a.university.name.localeCompare(b.university.name);
+        if (a.course.name !== b.course.name) return a.course.name.localeCompare(b.course.name);
+        return firstDay(a.student) - firstDay(b.student);
+    };
+
+    // Ordenar primero tarjetas manuales (por manualOrder) y luego el resto
+    const sortBucket = (items, defaultCmp) => {
+        const manual = items.filter(it => typeof it.student.manualOrder === 'number');
+        const auto = items.filter(it => typeof it.student.manualOrder !== 'number');
+        manual.sort((a, b) => a.student.manualOrder - b.student.manualOrder);
+        auto.sort(defaultCmp);
+        return [...manual, ...auto];
+    };
+
+    buckets.pendiente = sortBucket(buckets.pendiente, cmpHier);
+    buckets.desarrollo = sortBucket(buckets.desarrollo, cmpName);
+    buckets.realizado = sortBucket(buckets.realizado, cmpName);
+
+    renderSection('bodyPendiente', buckets.pendiente, 'pendiente');
+    renderSection('bodyDesarrollo', buckets.desarrollo, 'desarrollo');
+    renderSection('bodyRealizado', buckets.realizado, 'realizado');
+
+    document.getElementById('countPendiente').textContent = buckets.pendiente.length;
+    document.getElementById('countDesarrollo').textContent = buckets.desarrollo.length;
+    document.getElementById('countRealizado').textContent = buckets.realizado.length;
+
+    if (animate && oldRects) {
+        document.querySelectorAll('.card[data-student-id]').forEach(el => {
+            const id = el.dataset.studentId;
+            const oldRect = oldRects[id];
+            if (!oldRect) return;
+            const newRect = el.getBoundingClientRect();
+            const dx = oldRect.left - newRect.left;
+            const dy = oldRect.top - newRect.top;
+            if (dx === 0 && dy === 0) return;
+            el.style.transition = 'none';
+            el.style.transform = `translate(${dx}px, ${dy}px)`;
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    el.style.transition = 'transform 0.6s cubic-bezier(0.22,0.61,0.36,1)';
+                    el.style.transform = '';
+                });
+            });
+            setTimeout(() => {
+                el.style.transition = '';
+                el.style.transform = '';
+            }, 700);
+        });
+    }
+
+    setupSortable();
 }
 
 function renderFilters() {
@@ -618,6 +618,10 @@ function openStudentModal(studentId) {
         delBtn.style.display = 'inline-block';
         const f = findStudent(studentId);
         document.getElementById('fStudentName').value = f.student.name;
+        document.getElementById('fStudentUser').value = f.student.usuario || '';
+        document.getElementById('fStudentPass').value = f.student.contrasena || '';
+        document.getElementById('fStudentCuotas').value = f.student.cuotasPagadas || 0;
+        document.getElementById('fStudentNotas').value = f.student.notas || '';
         uniSel.value = f.university.id;
         refreshCourseSelect(f.university.id, f.course.id);
         weekSel.value = f.student.currentWeek || 1;
@@ -633,6 +637,10 @@ function openStudentModal(studentId) {
         title.textContent = 'Nuevo alumno';
         delBtn.style.display = 'none';
         document.getElementById('fStudentName').value = '';
+        document.getElementById('fStudentUser').value = '';
+        document.getElementById('fStudentPass').value = '';
+        document.getElementById('fStudentCuotas').value = 0;
+        document.getElementById('fStudentNotas').value = '';
         uniSel.value = state.universities[0]?.id || '';
         refreshCourseSelect(uniSel.value);
         weekSel.value = 1;
@@ -714,7 +722,10 @@ async function saveStudent() {
     const uniId = document.getElementById('fStudentUni').value;
     const courseId = document.getElementById('fStudentCourse').value;
     const week = parseInt(document.getElementById('fStudentWeek').value);
-
+    const usuario = document.getElementById('fStudentUser').value.trim();
+    const contrasena = document.getElementById('fStudentPass').value.trim();
+    const cuotasPagadas = parseInt(document.getElementById('fStudentCuotas').value) || 0;
+    const notas = document.getElementById('fStudentNotas').value.trim();
     const u = state.universities.find(x => x.id === uniId);
     const c = u?.courses.find(x => x.id === courseId);
     if (!u || !c) { alert('Selecciona universidad y curso válidos'); return; }
@@ -741,6 +752,10 @@ async function saveStudent() {
         f.student.classDays = classDays;
         delete f.student.classDay; // remove deprecated single-day field
         f.student.currentWeek = week;
+        f.student.usuario = usuario;
+        f.student.contrasena = contrasena;
+        f.student.cuotasPagadas = cuotasPagadas;
+        f.student.notas = notas;
     } else {
         c.students.push({
             id: uid(),
@@ -750,7 +765,11 @@ async function saveStudent() {
             weeks: makeWeeks(),
             paid: true,
             manualSection: null,
-            manualOrder: null
+            manualOrder: null,
+            usuario: usuario,
+            contrasena: contrasena,
+            cuotasPagadas: cuotasPagadas,
+            notas: notas
         });
     }
     await saveState();
@@ -916,7 +935,7 @@ function bindEvents() {
             render(); // Vuelve a dibujar el tablero con el filtro aplicado
         };
     }
-    
+
 }
 
 (async function init() {

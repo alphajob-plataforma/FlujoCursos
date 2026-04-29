@@ -277,8 +277,14 @@ body{
   padding:18px 28px 14px;
   display:flex;
   align-items:center;
-  gap:14px;
+  justify-content:space-between; /* Empuja la flecha a la derecha */
   border-bottom:1px solid var(--line-soft);
+  cursor:pointer; /* Muestra la manito para indicar que es clickeable */
+  user-select:none; /* Evita que el texto se seleccione por accidente al hacer doble clic */
+  transition: background 0.15s;
+}
+.section-head:hover {
+  background-blend-mode: darken; /* Un ligero efecto al pasar el mouse */
 }
 .section-head .marker{
   width:14px;
@@ -299,6 +305,24 @@ body{
   letter-spacing:0.16em;
   text-transform:uppercase;
   color:var(--muted);
+}
+.section-head .head-left {
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.collapse-icon {
+  color:var(--muted);
+  transition:transform 0.2s ease; /* Animación suave al girar */
+}
+.section.is-collapsed .section-body {
+  display:none; /* Oculta las tarjetas */
+}
+.section.is-collapsed .collapse-icon {
+  transform:rotate(-180deg); /* Gira la flecha hacia arriba */
+}
+.section.is-collapsed .section-head {
+  border-bottom:none; /* Quita la línea divisoria cuando está cerrado */
 }
 .section-head .meta .num{color:var(--ink);font-weight:600}
 .section-head.pendiente{background:linear-gradient(180deg,var(--pendiente-bg) 0%,var(--bg) 100%)}
