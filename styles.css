@@ -356,14 +356,16 @@ body{
 }
 
 /* ============ CARD ============ */
-.card{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:4px;
-  padding:16px;
-  position:relative;
-  will-change:transform;
-  touch-action: pan-y;
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 16px;
+  position: relative;
+  will-change: transform;
+  cursor: grab;
+  /* ESTA LÍNEA ES LA QUE PERMITE EL SCROLL EN MÓVILES: */
+  touch-action: pan-y !important; 
 }
 .card:hover{box-shadow:var(--shadow-md);border-color:var(--ink-soft)}
 .card.is-pendiente{border-left:3px solid var(--pendiente)}
@@ -839,5 +841,6 @@ body{
   transform: scale(0.98);
   transition: transform 0.1s, box-shadow 0.1s;
   z-index: 20;
-  touch-action: none !important; /* Aquí SÍ bloqueamos el scroll para poder arrastrar */
+  /* Solo bloqueamos el scroll cuando ya hicimos doble toque para poder arrastrar: */
+  touch-action: none !important; 
 }
