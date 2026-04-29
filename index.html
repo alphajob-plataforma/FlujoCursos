@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#1a1612">
+    <title>PIT — Sistema de Seguimiento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="brand">
+            <h1>PIT</h1>
+            <span class="tag">Sistema de Seguimiento</span>
+        </div>
+        <div class="header-meta">
+            <div class="today-pill">
+                <span class="dot"></span>
+                <span id="todayText">cargando…</span>
+            </div>
+            <div class="reorder-pill" id="reorderPill">
+                <span>Reorganizando</span>
+                <div class="reorder-bar"></div>
+            </div>
+            <button class="icon-btn" id="settingsBtn" title="Gestionar universidades y cursos">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M3 12h18M3 18h18" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="toolbar">
+        <div class="toolbar-row">
+            <div class="filter-group">
+                <span class="filter-label">Univ.</span>
+                <div id="uniFilters" class="chips-row"></div>
+            </div>
+            <div class="search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Buscar alumno...">
+            </div>
+            <select id="dayFilter" class="chip"
+                style="height: 36px; margin-right: 8px; font-family: inherit; outline: none; cursor: pointer; border-radius: 2px;">
+                <option value="all">Todos los días</option>
+                <option value="today">Solo Hoy</option>
+                <option value="1">Lunes</option>
+                <option value="2">Martes</option>
+                <option value="3">Miércoles</option>
+                <option value="4">Jueves</option>
+                <option value="5">Viernes</option>
+                <option value="6">Sábado</option>
+                <option value="0">Domingo</option>
+            </select>
+            <button class="add-btn" id="addStudentBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Alumno
+            </button>
+        </div>
+        <div class="toolbar-row toolbar-courses">
+            <div class="filter-group">
+                <span class="filter-label">Curso</span>
+                <div id="courseFilters" class="chips-row"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="board" id="board">
+        <section class="section" data-status="pendiente">
+            <div class="section-head pendiente">
+                <span class="marker"></span>
+                <h2>Pendientes</h2>
+                <span class="meta"><span class="num" id="countPendiente">0</span> alumnos</span>
+            </div>
+            <div class="section-body" id="bodyPendiente"></div>
+        </section>
+        <section class="section" data-status="desarrollo">
+            <div class="section-head desarrollo">
+                <span class="marker"></span>
+                <h2>En desarrollo</h2>
+                <span class="meta"><span class="num" id="countDesarrollo">0</span> alumnos</span>
+            </div>
+            <div class="section-body" id="bodyDesarrollo"></div>
+        </section>
+        <section class="section" data-status="realizado">
+            <div class="section-head realizado">
+                <span class="marker"></span>
+                <h2>Realizados</h2>
+                <span class="meta"><span class="num" id="countRealizado">0</span> alumnos</span>
+            </div>
+            <div class="section-body" id="bodyRealizado"></div>
+        </section>
+    </main>
+
+    <!-- Modal: Student -->
+    <div class="modal-bg" id="studentModal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3 id="studentModalTitle">Nuevo alumno</h3>
+                <button class="modal-close" data-close="studentModal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Nombre del alumno</label>
+                    <input type="text" id="fStudentName" placeholder="Ej: G-DAVID">
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label>Universidad</label>
+                        <select id="fStudentUni"></select>
+                    </div>
+                    <div class="field">
+                        <label>Curso</label>
+                        <select id="fStudentCourse"></select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Semana actual</label>
+                    <select id="fStudentWeek"></select>
+                </div>
+                <div class="field">
+                    <label>Días de clase y horarios (hasta 3)</label>
+                    <div id="classDaysList" class="class-days-list"></div>
+                    <button type="button" class="add-day-btn" id="addClassDayBtn">+ Agregar día</button>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-danger" id="deleteStudentBtn"
+                    style="margin-right:auto;display:none">Eliminar</button>
+                <button class="btn btn-ghost" data-close="studentModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveStudentBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Settings -->
+    <div class="modal-bg" id="settingsModal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>Universidades y cursos</h3>
+                <button class="modal-close" data-close="settingsModal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field-row">
+                    <div class="field">
+                        <label>Nueva universidad</label>
+                        <input type="text" id="fNewUni" placeholder="Ej: PUCP">
+                    </div>
+                    <div class="field" style="display:flex;align-items:flex-end">
+                        <button class="btn btn-primary" id="addUniBtn" style="width:100%">Agregar</button>
+                    </div>
+                </div>
+                <div id="treeView" class="tree"></div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-ghost" data-close="settingsModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Course -->
+    <div class="modal-bg" id="courseModal">
+        <div class="modal">
+            <div class="modal-head">
+                <h3>Nuevo curso</h3>
+                <button class="modal-close" data-close="courseModal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>Universidad</label>
+                    <input type="text" id="fCourseUni" disabled>
+                </div>
+                <div class="field">
+                    <label>Nombre del curso</label>
+                    <input type="text" id="fCourseName" placeholder="Ej: PIT 2026-0">
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-ghost" data-close="courseModal">Cancelar</button>
+                <button class="btn btn-primary" id="saveCourseBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
