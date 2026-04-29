@@ -2,7 +2,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbx-zzIvZ2NXm8vQDskqq2X-
 const STORAGE_KEY = 'pit-kanban-v4';
 const DAY_NAMES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const DAY_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-const REORDER_DELAY_MS = 4000;
+const REORDER_DELAY_MS = 2000;
 
 const STATUS_CYCLE = { pending: 'in_progress', in_progress: 'done', done: 'pending' };
 const STATUS_TO_SECTION = { pending: 'pendiente', in_progress: 'desarrollo', done: 'realizado' };
