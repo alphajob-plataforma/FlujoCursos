@@ -489,23 +489,29 @@ const SECTION_BY_BODY = {
 
 function setupSortable() {
     if (typeof Sortable === 'undefined') return;
-    // Destroy old instances to avoid leaks on re-render
+    // Destruir instancias viejas
     sortableInstances.forEach(s => { try { s.destroy(); } catch (e) { } });
     sortableInstances = [];
+
+    // Detectar si el dispositivo tiene pantalla táctil
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
     const config = {
         group: 'kanban',
         animation: 220,
+        // LA MAGIA: Si es celular, exige la clase drag-ready. Si es PC, se arrastra normal.
+        handle: isTouch ? '.drag-ready' : undefined,
         draggable: '.card',
         ghostClass: 'card-ghost',
         chosenClass: 'card-chosen',
         dragClass: 'card-dragging',
         filter: 'button, .week-btn, .payment-dot, [data-action]',
         preventOnFilter: false,
-        delay: 80,
-        delayOnTouchOnly: true,
-        touchStartThreshold: 5,
-        onEnd: handleDragEnd
+        onEnd: (evt) => {
+            // Limpiar la clase al terminar de arrastrar
+            if (evt.item) evt.item.classList.remove('drag-ready');
+            handleDragEnd(evt);
+        }
     };
 
     ['bodyPendiente', 'bodyDesarrollo', 'bodyRealizado'].forEach(id => {
@@ -935,7 +941,36 @@ function bindEvents() {
             render(); // Vuelve a dibujar el tablero con el filtro aplicado
         };
     }
+    const board = document.getElementById('board');
+    if (board) {
+        board.addEventListener('touchstart', function (e) {
+            const card = e.target.closest('.card');
+            if (!card) return;
 
+            // Si tocaste un botón dentro de la tarjeta, ignoramos el doble toque
+            if (e.target.closest('button, .week-btn, .payment-dot, [data-action]')) return;
+
+            const now = Date.now();
+            const lastTap = parseInt(card.dataset.lastTap || '0');
+
+            // Si pasaron menos de 400 milisegundos = ¡Es un doble toque!
+            if (now - lastTap < 400) {
+                card.classList.add('drag-ready');
+
+                // Pequeña vibración en Android para confirmar el enganche
+                if (navigator.vibrate) navigator.vibrate(50);
+
+                // Si te arrepientes y no arrastras, se desactiva solo a los 2 segundos
+                clearTimeout(card.dragTimeout);
+                card.dragTimeout = setTimeout(() => {
+                    card.classList.remove('drag-ready');
+                }, 2000);
+            } else {
+                // Es el primer toque, guardamos el tiempo
+                card.dataset.lastTap = now;
+            }
+        }, { capture: true, passive: true });
+    }
 }
 
 (async function init() {
